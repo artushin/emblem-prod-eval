@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Age Verification Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .container {
+            text-align: center;
+        }
+        .method {
+            background: #f4f4f4;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+        .button {
+            display: inline-block;
+            background: #007cba;
+            color: white;
+            padding: 12px 24px;
+            text-decoration: none;
+            border-radius: 4px;
+            margin: 10px;
+        }
+        .button:hover {
+            background: #005a8b;
+        }
+        .error {
+            color: red;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Age Verification Integration Test</h1>
+        <p>This demo shows two different ways to integrate with SafePassage age verification:</p>
+        
+        <div class="method">
+            <h3>Method 1: JavaScript SDK Integration</h3>
+            <p>Uses the SafePassage SDK for automatic session creation and redirect handling</p>
+            <a href="/sdk-integration" class="button">Test SDK Integration</a>
+        </div>
+        
+        <div class="method">
+            <h3>Method 2: Direct API Integration</h3>
+            <p>Uses direct REST API calls to create sessions and handle verification</p>
+            <a href="/api-integration" class="button">Test API Integration</a>
+        </div>
+        
+        <div id="error-message" class="error" style="display: none;"></div>
+    </div>
+    
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('error') === 'verification_failed') {
+            const errorDiv = document.getElementById('error-message');
+            errorDiv.textContent = 'Age verification failed. Please try again.';
+            errorDiv.style.display = 'block';
+        }
+    </script>
+</body>
+</html>

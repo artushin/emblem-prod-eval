@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SDK Integration - Age Verification</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            text-align: center;
+        }
+
+        .info {
+            background: #e7f3ff;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            border-left: 4px solid #007cba;
+        }
+
+        .button {
+            background: #007cba;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px;
+        }
+
+        .button:hover {
+            background: #005a8b;
+        }
+
+        .button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .back-link {
+            color: #007cba;
+            text-decoration: none;
+        }
+
+        .status {
+            margin: 20px 0;
+            padding: 10px;
+            border-radius: 4px;
+        }
+
+        .status.loading {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>JavaScript SDK Integration</h1>
+        <a href="/" class="back-link">← Back to Home</a>
+        <button id="verify-age" class="button">Start Age Verification (SDK)</button>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@safepassage/sdk@latest/dist/safepassage.min.js"></script>
+
+    <script>
+        const sp = new SafePassage({
+            apiKey: 'pk_2b231e48e6ddc71216f82a8ad74146deada73be33a34e92e1b11786245cb5940',
+            returnUrl: window.location.origin + '/protected?verified=true',
+            cancelUrl: window.location.origin + '/protected?cancelled=true',
+            "environment": "production"
+        });
+
+        console.log(window.location.href + '?verified=true')
+
+        document.getElementById('verify-age').onclick = () => sp.verify({
+            sessionId: "foo",
+            externalUserId: "foo",
+            verificationMode: 'L1',
+            challengeAge: 80,
+        });
+    </script>
+</body>
+
+</html>
