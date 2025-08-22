@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,9 +13,11 @@
             padding: 20px;
             line-height: 1.6;
         }
+
         .container {
             text-align: center;
         }
+
         .info {
             background: #f0f9ff;
             padding: 20px;
@@ -22,6 +25,7 @@
             border-radius: 8px;
             border-left: 4px solid #0ea5e9;
         }
+
         .button {
             background: #0ea5e9;
             color: white;
@@ -32,34 +36,42 @@
             font-size: 16px;
             margin: 10px;
         }
+
         .button:hover {
             background: #0284c7;
         }
+
         .button:disabled {
             background: #ccc;
             cursor: not-allowed;
         }
+
         .back-link {
             color: #0ea5e9;
             text-decoration: none;
         }
+
         .status {
             margin: 20px 0;
             padding: 10px;
             border-radius: 4px;
         }
+
         .status.loading {
             background: #fff3cd;
             color: #856404;
         }
+
         .status.error {
             background: #f8d7da;
             color: #721c24;
         }
+
         .status.success {
             background: #d4edda;
             color: #155724;
         }
+
         .api-details {
             background: #f8f9fa;
             padding: 15px;
@@ -71,160 +83,57 @@
         }
     </style>
 </head>
+
 <body>
     <div class="container">
         <h1>Direct API Integration</h1>
         <a href="/" class="back-link">← Back to Home</a>
-        
-        <div class="info">
-            <h3>How it works:</h3>
-            <ul style="text-align: left;">
-                <li>Create a session using the REST API</li>
-                <li>Redirect users to the verification URL manually</li>
-                <li>Validate the session when users return</li>
-                <li>No SDK required - pure API integration</li>
-            </ul>
-        </div>
-        
-        <div id="api-details" class="api-details" style="display: none;">
-            <strong>API Call Details:</strong>
-            <div id="api-request"></div>
-            <div id="api-response"></div>
-        </div>
-        
-        <div id="status" class="status" style="display: none;"></div>
-        
-        <button id="create-session-btn" class="button">Create Session & Verify (API)</button>
-        <button id="mock-verify-btn" class="button" style="background: #28a745;">Mock Verification (Test Only)</button>
-        
-        <div style="margin-top: 30px; font-size: 14px; color: #666;">
-            <p><strong>Note:</strong> This is a demo implementation. In a real application, you would:</p>
-            <ul style="text-align: left;">
-                <li>Use your actual SafePassage API credentials</li>
-                <li>Make requests to the real SafePassage API endpoints</li>
-                <li>Handle proper error responses and edge cases</li>
-                <li>Implement proper security measures</li>
-            </ul>
-        </div>
+        <button id="verify-age" class="button">Start Age Verification (Backend)</button>
     </div>
-    
+
+    <script src="https://cdn.jsdelivr.net/npm/@safepassage/sdk@latest/dist/safepassage.min.js"></script>
+
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const createSessionBtn = document.getElementById('create-session-btn');
-            const mockVerifyBtn = document.getElementById('mock-verify-btn');
-            const status = document.getElementById('status');
-            const apiDetails = document.getElementById('api-details');
-            const apiRequest = document.getElementById('api-request');
-            const apiResponse = document.getElementById('api-response');
-            
-            function showStatus(message, type = 'loading') {
-                status.textContent = message;
-                status.className = `status ${type}`;
-                status.style.display = 'block';
-            }
-            
-            function hideStatus() {
-                status.style.display = 'none';
-            }
-            
-            function showApiDetails(request, response) {
-                apiRequest.innerHTML = `<strong>Request:</strong><br><pre>${request}</pre>`;
-                apiResponse.innerHTML = `<strong>Response:</strong><br><pre>${response}</pre>`;
-                apiDetails.style.display = 'block';
-            }
-            
-            createSessionBtn.addEventListener('click', async function() {
-                showStatus('Creating session via API...', 'loading');
-                createSessionBtn.disabled = true;
-                
-                try {
-                    const requestData = {
-                        return_url: 'http://localhost:3000/api/verify-session'
-                    };
-                    
-                    const requestDetails = `POST /api/create-session
-Content-Type: application/json
+        document.getElementById('verify-age').onclick = async () => {
+            try {
+                const requestData = {
+                    return_url: 'https://localhost:3000/api/verify-age'
+                };
 
-${JSON.stringify(requestData, null, 2)}`;
-                    
-                    const response = await fetch('/api/create-session', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify(requestData)
+                const response = await fetch('/api/create-session', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(requestData)
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    console.log(data);
+
+                    const sp = new SafePassage({
+                        apiKey: 'pk_2b231e48e6ddc71216f82a8ad74146deada73be33a34e92e1b11786245cb5940',
+                        returnUrl: window.location.origin + '/protected?verified=true&sessionId=' + data.session_id,
+                        cancelUrl: window.location.origin + '/protected?cancelled=true',
+                        "environment": "production"
                     });
-                    
-                    const data = await response.json();
-                    
-                    const responseDetails = `Status: ${response.status}
-Content-Type: application/json
 
-${JSON.stringify(data, null, 2)}`;
-                    
-                    showApiDetails(requestDetails, responseDetails);
-                    
-                    if (data.success) {
-                        showStatus('Session created! Redirecting to SafePassage...', 'success');
-                        
-                        setTimeout(() => {
-                            window.location.href = data.verification_url;
-                        }, 3000);
-                    } else {
-                        showStatus('Failed to create session: ' + data.error, 'error');
-                        createSessionBtn.disabled = false;
-                    }
-                } catch (error) {
-                    showStatus('Error: ' + error.message, 'error');
-                    createSessionBtn.disabled = false;
-                }
-            });
-            
-            mockVerifyBtn.addEventListener('click', async function() {
-                showStatus('Processing mock verification via API...', 'loading');
-                mockVerifyBtn.disabled = true;
-                
-                try {
-                    const sessionId = 'mock-api-session-' + Date.now();
-                    
-                    const requestData = { sessionId };
-                    const requestDetails = `POST /api/mock-verify
-Content-Type: application/json
-
-${JSON.stringify(requestData, null, 2)}`;
-                    
-                    const response = await fetch('/api/mock-verify', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify(requestData)
+                    sp.verify({
+                        sessionId: data.session_id,
+                        externalUserId: "foo",
+                        verificationMode: 'L1',
+                        challengeAge: 80,
                     });
-                    
-                    const data = await response.json();
-                    
-                    const responseDetails = `Status: ${response.status}
-Content-Type: application/json
-
-${JSON.stringify(data, null, 2)}`;
-                    
-                    showApiDetails(requestDetails, responseDetails);
-                    
-                    if (data.success) {
-                        showStatus('API verification successful! Redirecting...', 'success');
-                        setTimeout(() => {
-                            window.location.href = '/protected';
-                        }, 2000);
-                    } else {
-                        showStatus('API verification failed: ' + data.error, 'error');
-                        mockVerifyBtn.disabled = false;
-                    }
-                } catch (error) {
-                    showStatus('Error: ' + error.message, 'error');
-                    mockVerifyBtn.disabled = false;
+                } else {
+                    console.log('Failed to create session: ' + data.error, 'error');
                 }
-            });
-        });
+            } catch (error) {
+                console.log('Error: ' + error.message, 'error');
+            }
+        };
     </script>
 </body>
+
 </html>

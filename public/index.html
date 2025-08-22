@@ -61,9 +61,23 @@
     
     <script>
         const urlParams = new URLSearchParams(window.location.search);
-        if (urlParams.get('error') === 'verification_failed') {
+        const error = urlParams.get('error');
+        if (error) {
             const errorDiv = document.getElementById('error-message');
-            errorDiv.textContent = 'Age verification failed. Please try again.';
+            let errorMessage = '';
+            
+            switch(error) {
+                case 'verification_failed':
+                    errorMessage = 'Age verification failed. Please try again.';
+                    break;
+                case 'verification_cancelled':
+                    errorMessage = 'Age verification was cancelled. Please try again.';
+                    break;
+                default:
+                    errorMessage = 'An error occurred during verification. Please try again.';
+            }
+            
+            errorDiv.textContent = errorMessage;
             errorDiv.style.display = 'block';
         }
     </script>
